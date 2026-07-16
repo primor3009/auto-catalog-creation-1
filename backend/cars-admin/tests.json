@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "CORS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get cars list",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create without auth fails",
+      "method": "POST",
+      "path": "/",
+      "body": {"brand": "Test", "model": "X", "year": 2024, "price": 1000000, "bodyType": "Седан", "fuel": "Бензин", "power": 100, "acceleration": 5, "drive": "Передний", "cover": "https://example.com/a.jpg", "gallery": []},
+      "expectedStatus": 401
+    }
+  ]
+}

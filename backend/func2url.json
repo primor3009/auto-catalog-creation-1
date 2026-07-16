@@ -1,3 +1,6 @@
 {
+  "upload-file": "https://functions.poehali.dev/e44611d7-6874-4eca-a213-a039badaa662",
+  "cars-admin": "https://functions.poehali.dev/e918aaeb-8262-410b-a843-0359b44b2e34",
+  "admin-auth": "https://functions.poehali.dev/c177c9bb-9014-4624-84e0-5823bc37ccd6",
   "send-lead": "https://functions.poehali.dev/3033b472-4a76-42f7-9488-9f2210f7baa9"
 }

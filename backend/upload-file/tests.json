@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "CORS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Upload without auth fails",
+      "method": "POST",
+      "path": "/",
+      "body": {"file": "data:image/png;base64,aGVsbG8=", "fileName": "a.png", "contentType": "image/png"},
+      "expectedStatus": 401
+    }
+  ]
+}

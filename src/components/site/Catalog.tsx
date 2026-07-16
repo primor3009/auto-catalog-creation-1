@@ -1,14 +1,21 @@
 import { useState, useMemo } from 'react';
 import Icon from '@/components/ui/icon';
-import { cars, brands, bodyTypes, fuels, formatPrice, Car } from '@/data/cars';
+import { bodyTypes, fuels, formatPrice, Car } from '@/data/cars';
+import { useCars } from '@/hooks/useCars';
 import CarGalleryModal from './CarGalleryModal';
 
 const Catalog = () => {
+  const { cars, loading } = useCars();
   const [brand, setBrand] = useState('Все марки');
   const [body, setBody] = useState('Все типы');
   const [fuel, setFuel] = useState('Все');
   const [maxPrice, setMaxPrice] = useState(13000000);
   const [selected, setSelected] = useState<Car | null>(null);
+
+  const brands = useMemo(
+    () => ['Все марки', ...Array.from(new Set(cars.map((c) => c.brand)))],
+    [cars]
+  );
 
   const filtered = useMemo(
     () =>
@@ -19,7 +26,7 @@ const Catalog = () => {
           (fuel === 'Все' || c.fuel === fuel) &&
           c.price <= maxPrice
       ),
-    [brand, body, fuel, maxPrice]
+    [cars, brand, body, fuel, maxPrice]
   );
 
   const Chip = ({
@@ -99,7 +106,12 @@ const Catalog = () => {
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20 text-muted-foreground">
+            <Icon name="Loader2" size={40} className="mx-auto mb-4 animate-spin text-primary" />
+            Загружаем каталог…
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
             <Icon name="SearchX" size={48} className="mx-auto mb-4 opacity-50" />
             Ничего не найдено. Измени фильтры.

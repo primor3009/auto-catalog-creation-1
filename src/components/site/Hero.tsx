@@ -1,5 +1,5 @@
 import Icon from '@/components/ui/icon';
-import { cars } from '@/data/cars';
+import { useCars } from '@/hooks/useCars';
 
 const stats = [
   { value: '250+', label: 'Автомобилей' },
@@ -8,8 +8,11 @@ const stats = [
 ];
 
 const Hero = () => {
+  const { cars } = useCars();
   const go = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+
+  if (cars.length === 0) return <section id="home" className="min-h-screen pt-20" />;
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden grid-bg pt-20">
