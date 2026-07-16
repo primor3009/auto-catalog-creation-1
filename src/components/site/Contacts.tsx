@@ -9,19 +9,35 @@ const info = [
   { icon: 'Clock', label: 'Часы работы', value: 'Ежедневно 9:00 – 21:00' },
 ];
 
+const SEND_LEAD_URL = 'https://functions.poehali.dev/3033b472-4a76-42f7-9488-9f2210f7baa9';
+
 const Contacts = () => {
   const [form, setForm] = useState({ name: '', phone: '', comment: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const err: Record<string, string> = {};
     if (form.name.trim().length < 2) err.name = 'Укажите имя';
     if (!/^[\d\s()+-]{6,}$/.test(form.phone)) err.phone = 'Некорректный телефон';
     setErrors(err);
-    if (Object.keys(err).length === 0) {
+    if (Object.keys(err).length > 0) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(SEND_LEAD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error();
       toast.success('Заявка отправлена! Мы перезвоним вам в ближайшее время.');
       setForm({ name: '', phone: '', comment: '' });
+    } catch {
+      toast.error('Не удалось отправить заявку. Попробуйте позже или позвоните нам.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,9 +103,17 @@ const Contacts = () => {
 
           <button
             type="submit"
-            className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-700 uppercase tracking-wide hover:opacity-90 transition-opacity glow-cyan"
+            disabled={loading}
+            className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-700 uppercase tracking-wide hover:opacity-90 transition-opacity glow-cyan disabled:opacity-60 flex items-center justify-center gap-2"
           >
-            Отправить заявку
+            {loading ? (
+              <>
+                <Icon name="Loader2" size={20} className="animate-spin" />
+                Отправляем…
+              </>
+            ) : (
+              'Отправить заявку'
+            )}
           </button>
         </form>
       </div>
