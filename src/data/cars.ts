@@ -13,6 +13,7 @@ export interface Car {
   gallery: string[];
   video: string;
   tag?: string;
+  comment?: string;
 }
 
 export const bodyTypes = ['Все типы', 'Седан', 'Купе', 'Кроссовер', 'Внедорожник'];

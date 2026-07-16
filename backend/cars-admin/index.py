@@ -34,6 +34,7 @@ def row_to_car(row) -> dict:
         'gallery': row[11],
         'video': row[12],
         'tag': row[13],
+        'comment': row[14],
     }
 
 
@@ -55,7 +56,7 @@ def handler(event: dict, context) -> dict:
     conn.autocommit = True
     cur = conn.cursor()
 
-    cols = "id, brand, model, year, price, body_type, fuel, power, acceleration, drive, cover, gallery, video, tag"
+    cols = "id, brand, model, year, price, body_type, fuel, power, acceleration, drive, cover, gallery, video, tag, comment"
 
     if method == 'GET':
         cur.execute(f"SELECT {cols} FROM cars ORDER BY id DESC")
@@ -74,11 +75,12 @@ def handler(event: dict, context) -> dict:
         gallery_json = json.dumps(body.get('gallery') or [])
         tag_val = "'%s'" % esc(body['tag']) if body.get('tag') else 'NULL'
         video_val = "'%s'" % esc(body['video']) if body.get('video') else 'NULL'
+        comment_val = "'%s'" % esc(body['comment']) if body.get('comment') else 'NULL'
         cur.execute(
-            f"INSERT INTO cars (brand, model, year, price, body_type, fuel, power, acceleration, drive, cover, gallery, video, tag) "
+            f"INSERT INTO cars (brand, model, year, price, body_type, fuel, power, acceleration, drive, cover, gallery, video, tag, comment) "
             f"VALUES ('{esc(body['brand'])}', '{esc(body['model'])}', {int(body['year'])}, {int(body['price'])}, "
             f"'{esc(body['bodyType'])}', '{esc(body['fuel'])}', {int(body['power'])}, {float(body['acceleration'])}, "
-            f"'{esc(body['drive'])}', '{esc(body['cover'])}', '{esc(gallery_json)}'::jsonb, {video_val}, {tag_val}) "
+            f"'{esc(body['drive'])}', '{esc(body['cover'])}', '{esc(gallery_json)}'::jsonb, {video_val}, {tag_val}, {comment_val}) "
             f"RETURNING {cols}"
         )
         row = cur.fetchone()
@@ -94,12 +96,13 @@ def handler(event: dict, context) -> dict:
         gallery_json = json.dumps(body.get('gallery') or [])
         tag_val = "'%s'" % esc(body['tag']) if body.get('tag') else 'NULL'
         video_val = "'%s'" % esc(body['video']) if body.get('video') else 'NULL'
+        comment_val = "'%s'" % esc(body['comment']) if body.get('comment') else 'NULL'
         cur.execute(
             f"UPDATE cars SET brand='{esc(body['brand'])}', model='{esc(body['model'])}', year={int(body['year'])}, "
             f"price={int(body['price'])}, body_type='{esc(body['bodyType'])}', fuel='{esc(body['fuel'])}', "
             f"power={int(body['power'])}, acceleration={float(body['acceleration'])}, drive='{esc(body['drive'])}', "
             f"cover='{esc(body['cover'])}', gallery='{esc(gallery_json)}'::jsonb, video={video_val}, tag={tag_val}, "
-            f"updated_at=NOW() WHERE id={car_id} RETURNING {cols}"
+            f"comment={comment_val}, updated_at=NOW() WHERE id={car_id} RETURNING {cols}"
         )
         row = cur.fetchone()
         if not row:

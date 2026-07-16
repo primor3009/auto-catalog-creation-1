@@ -111,6 +111,15 @@ const CarGalleryModal = ({ car, open, onClose }: Props) => {
             ))}
           </div>
 
+          {car.comment && (
+            <div className="p-4 rounded-xl bg-secondary/50 border border-border">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-primary font-600 mb-2">
+                <Icon name="MessageSquare" size={14} /> Дополнительная информация
+              </div>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{car.comment}</p>
+            </div>
+          )}
+
           <button className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-700 uppercase tracking-wide hover:opacity-90 transition-opacity glow-cyan">
             Записаться на тест-драйв
           </button>

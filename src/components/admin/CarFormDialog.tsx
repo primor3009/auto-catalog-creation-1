@@ -26,6 +26,7 @@ const emptyForm = {
   gallery: [] as string[],
   video: '',
   tag: '',
+  comment: '',
 };
 
 const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
@@ -51,6 +52,7 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
         gallery: car.gallery,
         video: car.video || '',
         tag: car.tag || '',
+        comment: car.comment || '',
       });
     } else {
       setForm(emptyForm);
@@ -255,6 +257,17 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
               </button>
             )}
             <input ref={videoInputRef} type="file" accept="video/*" hidden onChange={handleVideoUpload} />
+          </div>
+
+          <div>
+            <label className={label}>Комментарий / доп. информация (необязательно)</label>
+            <textarea
+              value={form.comment}
+              onChange={(e) => setForm({ ...form, comment: e.target.value })}
+              placeholder="Особенности комплектации, состояние, история авто…"
+              rows={4}
+              className="w-full px-3 py-2.5 rounded-lg bg-secondary/50 border border-border focus:border-primary outline-none text-sm resize-none"
+            />
           </div>
 
           <button
