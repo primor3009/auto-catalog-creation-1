@@ -23,7 +23,7 @@ const Hero = () => {
         <div className="space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 animate-fade-up">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-600 uppercase tracking-widest text-primary">Новая коллекция 2025</span>
+            <span className="text-xs font-600 uppercase tracking-widest text-primary">Новая коллекция</span>
           </div>
 
           <h1
