@@ -83,6 +83,13 @@ const Header = () => {
                 {l.label}
               </button>
             ))}
+            <a
+              href="tel:+79146887113"
+              className="mt-4 flex items-center justify-center gap-2 text-base font-600 text-foreground"
+            >
+              <Icon name="Phone" size={18} className="text-primary" />
+              +7 (914) 688-71-13
+            </a>
             <button
               onClick={() => go('#contacts')}
               className="mt-4 h-12 rounded-lg bg-primary text-primary-foreground font-600"
