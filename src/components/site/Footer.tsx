@@ -7,7 +7,7 @@ const Footer = () => (
         <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
           <Icon name="Zap" className="text-primary-foreground" size={20} />
         </div>
-        <span className="font-display text-xl font-700 tracking-widest">AUTOHAUS</span>
+        <span className="font-display text-xl font-700 tracking-widest">МашинаТут</span>
       </div>
 
       <div className="flex gap-3">
@@ -22,7 +22,7 @@ const Footer = () => (
         ))}
       </div>
 
-      <p className="text-sm text-muted-foreground">© 2025 AUTOHAUS. Все права защищены.</p>
+      <p className="text-sm text-muted-foreground">© 2025 МашинаТут. Все права защищены.</p>
     </div>
   </footer>
 );

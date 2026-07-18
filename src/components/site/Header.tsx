@@ -34,7 +34,7 @@ const Header = () => {
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center glow-cyan">
             <Icon name="Zap" className="text-primary-foreground" size={20} />
           </div>
-          <span className="font-display text-xl font-700 tracking-widest">AUTOHAUS</span>
+          <span className="font-display text-xl font-700 tracking-widest">МашинаТут</span>
         </button>
 
         <nav className="hidden md:flex items-center gap-8">

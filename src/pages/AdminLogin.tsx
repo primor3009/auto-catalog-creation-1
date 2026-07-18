@@ -66,7 +66,7 @@ const AdminLogin = () => {
             <Icon name="Lock" className="text-primary-foreground" size={22} />
           </div>
           <h1 className="font-display text-2xl font-700 uppercase">Вход в панель</h1>
-          <p className="text-sm text-muted-foreground text-center">Управление каталогом AUTOHAUS</p>
+          <p className="text-sm text-muted-foreground text-center">Управление каталогом МашинаТут</p>
         </div>
 
         <div className="space-y-2">
