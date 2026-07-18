@@ -47,7 +47,6 @@ const Contacts = () => {
         <div className="space-y-8">
           <div>
             <div className="text-sm uppercase tracking-widest text-primary font-600 mb-2">Контакты</div>
-            <h2 className="font-display text-4xl md:text-5xl font-700 uppercase">Приезжайте <br />в шоурум</h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {info.map((i) => (
