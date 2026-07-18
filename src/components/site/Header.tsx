@@ -49,13 +49,22 @@ const Header = () => {
           ))}
         </nav>
 
-        <button
-          onClick={() => go('#contacts')}
-          className="hidden md:inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-primary text-primary-foreground font-600 text-sm hover:opacity-90 transition-opacity"
-        >
-          Заказать звонок
-          <Icon name="Phone" size={16} />
-        </button>
+        <div className="hidden md:flex items-center gap-4">
+          <a
+            href="tel:+79146887113"
+            className="flex items-center gap-2 text-sm font-600 text-foreground hover:text-primary transition-colors"
+          >
+            <Icon name="Phone" size={16} className="text-primary" />
+            +7 (914) 688-71-13
+          </a>
+          <button
+            onClick={() => go('#contacts')}
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-primary text-primary-foreground font-600 text-sm hover:opacity-90 transition-opacity"
+          >
+            Заказать звонок
+            <Icon name="Phone" size={16} />
+          </button>
+        </div>
 
         <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
           <Icon name={open ? 'X' : 'Menu'} size={26} />

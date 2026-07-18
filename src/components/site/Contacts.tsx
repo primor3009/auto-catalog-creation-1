@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 const info = [
   { icon: 'MapPin', label: 'Адрес', value: 'Москва, Ленинградский пр-т, 39' },
-  { icon: 'Phone', label: 'Телефон', value: '+7 (495) 000-00-00' },
+  { icon: 'Phone', label: 'Телефон', value: '+7 (914) 688-71-13' },
   { icon: 'Mail', label: 'Почта', value: 'sales@autohaus.ru' },
   { icon: 'Clock', label: 'Часы работы', value: 'Ежедневно 9:00 – 21:00' },
 ];
