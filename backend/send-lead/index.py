@@ -21,31 +21,6 @@ def handler(event: dict, context) -> dict:
             'body': '',
         }
 
-    if method == 'GET' and event.get('queryStringParameters', {}).get('debug') == '1':
-        token = os.environ.get('TELEGRAM_BOT_TOKEN')
-        if not token:
-            return {
-                'statusCode': 500,
-                'headers': {'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Токен не настроен'}),
-            }
-        url = f'https://api.telegram.org/bot{token}/getUpdates'
-        with urllib.request.urlopen(url, timeout=10) as resp:
-            data = json.loads(resp.read())
-        webhook_url = f'https://api.telegram.org/bot{token}/getWebhookInfo'
-        with urllib.request.urlopen(webhook_url, timeout=10) as resp:
-            webhook_data = json.loads(resp.read())
-        data['webhook_info'] = webhook_data
-        me_url = f'https://api.telegram.org/bot{token}/getMe'
-        with urllib.request.urlopen(me_url, timeout=10) as resp:
-            me_data = json.loads(resp.read())
-        data['bot_info'] = me_data
-        return {
-            'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps(data, ensure_ascii=False),
-        }
-
     if method != 'POST':
         return {
             'statusCode': 405,
@@ -85,23 +60,30 @@ def handler(event: dict, context) -> dict:
 
     url = f'https://api.telegram.org/bot{token}/sendMessage'
     data = urllib.parse.urlencode({'chat_id': chat_id, 'text': text}).encode()
-    req = urllib.request.Request(url, data=data, method='POST')
 
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            resp.read()
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode('utf-8', errors='ignore')
+    last_error = None
+    for attempt in range(3):
+        req = urllib.request.Request(url, data=data, method='POST')
+        try:
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                resp.read()
+            last_error = None
+            break
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8', errors='ignore')
+            return {
+                'statusCode': 502,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Telegram API отклонил запрос', 'details': error_body}),
+            }
+        except urllib.error.URLError as e:
+            last_error = str(e.reason)
+
+    if last_error:
         return {
             'statusCode': 502,
             'headers': {'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Telegram API отклонил запрос', 'details': error_body}),
-        }
-    except urllib.error.URLError as e:
-        return {
-            'statusCode': 502,
-            'headers': {'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Не удалось связаться с Telegram', 'details': str(e.reason)}),
+            'body': json.dumps({'error': 'Не удалось связаться с Telegram', 'details': last_error}),
         }
 
     return {
