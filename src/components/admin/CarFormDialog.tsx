@@ -12,6 +12,49 @@ interface Props {
   onSaved: () => void;
 }
 
+const SMALL_FILE_LIMIT = 2 * 1024 * 1024;
+const CHUNK_SIZE = 1_500_000;
+
+const fileToBase64 = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(',', 2)[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+const uploadFileChunked = async (file: File): Promise<string> => {
+  const initRes = await fetch(UPLOAD_FILE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ action: 'init', fileName: file.name }),
+  });
+  const initData = await initRes.json();
+  if (!initRes.ok) throw new Error(initData.error);
+  const { uploadId, ext } = initData;
+
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  for (let i = 0; i < totalChunks; i++) {
+    const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const data = await fileToBase64(chunk);
+    const chunkRes = await fetch(UPLOAD_FILE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ action: 'chunk', uploadId, index: i, data }),
+    });
+    if (!chunkRes.ok) throw new Error('Ошибка загрузки части файла');
+  }
+
+  const completeRes = await fetch(UPLOAD_FILE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ action: 'complete', uploadId, ext, contentType: file.type, totalChunks }),
+  });
+  const completeData = await completeRes.json();
+  if (!completeRes.ok) throw new Error(completeData.error);
+  return completeData.url;
+};
+
 const emptyForm = {
   brand: '',
   model: '',
@@ -60,6 +103,10 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
   }, [car, open]);
 
   const uploadFile = async (file: File): Promise<string> => {
+    if (file.size > SMALL_FILE_LIMIT) {
+      return uploadFileChunked(file);
+    }
+
     const base64 = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
@@ -88,7 +135,8 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
         cover: f.cover || urls[0],
       }));
       toast.success('Фото загружены');
-    } catch {
+    } catch (err) {
+      console.error('Ошибка загрузки фото:', err);
       toast.error('Не удалось загрузить фото');
     } finally {
       setUploading(false);
@@ -104,8 +152,9 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
       const url = await uploadFile(file);
       setForm((f) => ({ ...f, video: url }));
       toast.success('Видео загружено');
-    } catch {
-      toast.error('Не удалось загрузить видео');
+    } catch (err) {
+      console.error('Ошибка загрузки видео:', err);
+      toast.error(err instanceof Error && err.message ? err.message : 'Не удалось загрузить видео');
     } finally {
       setUploading(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
