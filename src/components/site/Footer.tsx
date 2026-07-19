@@ -11,13 +11,19 @@ const Footer = () => (
       </div>
 
       <div className="flex gap-3">
-        {['Instagram', 'Send', 'Youtube'].map((s) => (
+        {[
+          { icon: 'Instagram', href: 'https://instagram.com/mashinatut' },
+          { icon: 'Send', href: 'https://t.me/Rumpel3009' },
+          { icon: 'Youtube', href: '#' },
+        ].map((s) => (
           <a
-            key={s}
-            href="#"
+            key={s.icon}
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
           >
-            <Icon name={s} size={18} />
+            <Icon name={s.icon} size={18} />
           </a>
         ))}
       </div>
