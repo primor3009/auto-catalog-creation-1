@@ -2,6 +2,7 @@ import json
 import os
 import urllib.request
 import urllib.parse
+import urllib.error
 
 
 def handler(event: dict, context) -> dict:
@@ -50,7 +51,7 @@ def handler(event: dict, context) -> dict:
         }
 
     text = (
-        '🚗 Новая заявка с сайта AUTOHAUS\n\n'
+        '🚗 Новая заявка с сайта МашинаТут\n\n'
         f'👤 Имя: {name}\n'
         f'📞 Телефон: {phone}\n'
     )
@@ -61,8 +62,22 @@ def handler(event: dict, context) -> dict:
     data = urllib.parse.urlencode({'chat_id': chat_id, 'text': text}).encode()
     req = urllib.request.Request(url, data=data, method='POST')
 
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        resp.read()
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            resp.read()
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode('utf-8', errors='ignore')
+        return {
+            'statusCode': 502,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Telegram API отклонил запрос', 'details': error_body}),
+        }
+    except urllib.error.URLError as e:
+        return {
+            'statusCode': 502,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Не удалось связаться с Telegram', 'details': str(e.reason)}),
+        }
 
     return {
         'statusCode': 200,
