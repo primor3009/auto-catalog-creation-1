@@ -36,6 +36,10 @@ def handler(event: dict, context) -> dict:
         with urllib.request.urlopen(webhook_url, timeout=10) as resp:
             webhook_data = json.loads(resp.read())
         data['webhook_info'] = webhook_data
+        me_url = f'https://api.telegram.org/bot{token}/getMe'
+        with urllib.request.urlopen(me_url, timeout=10) as resp:
+            me_data = json.loads(resp.read())
+        data['bot_info'] = me_data
         return {
             'statusCode': 200,
             'headers': {'Access-Control-Allow-Origin': '*'},
