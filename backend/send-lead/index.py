@@ -21,6 +21,23 @@ def handler(event: dict, context) -> dict:
             'body': '',
         }
 
+    if method == 'GET' and event.get('queryStringParameters', {}).get('debug') == '1':
+        token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        if not token:
+            return {
+                'statusCode': 500,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Токен не настроен'}),
+            }
+        url = f'https://api.telegram.org/bot{token}/getUpdates'
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read())
+        return {
+            'statusCode': 200,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps(data, ensure_ascii=False),
+        }
+
     if method != 'POST':
         return {
             'statusCode': 405,
