@@ -19,13 +19,15 @@ const Catalog = () => {
 
   const filtered = useMemo(
     () =>
-      cars.filter(
-        (c) =>
-          (brand === 'Все марки' || c.brand === brand) &&
-          (body === 'Все типы' || c.bodyType === body) &&
-          (fuel === 'Все' || c.fuel === fuel) &&
-          c.price <= maxPrice
-      ),
+      cars
+        .filter(
+          (c) =>
+            (brand === 'Все марки' || c.brand === brand) &&
+            (body === 'Все типы' || c.bodyType === body) &&
+            (fuel === 'Все' || c.fuel === fuel) &&
+            c.price <= maxPrice
+        )
+        .sort((a, b) => (b.tag ? 1 : 0) - (a.tag ? 1 : 0)),
     [cars, brand, body, fuel, maxPrice]
   );
 
