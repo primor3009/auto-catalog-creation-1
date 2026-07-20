@@ -120,8 +120,16 @@ const CarGalleryModal = ({ car, open, onClose }: Props) => {
             </div>
           )}
 
-          <button className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-700 uppercase tracking-wide hover:opacity-90 transition-opacity glow-cyan">
-            Записаться на тест-драйв
+          <button
+            onClick={() => {
+              onClose();
+              setTimeout(() => {
+                document.querySelector('#contacts')?.scrollIntoView({ behavior: 'smooth' });
+              }, 150);
+            }}
+            className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-700 uppercase tracking-wide hover:opacity-90 transition-opacity glow-cyan"
+          >
+            Купить сейчас
           </button>
         </div>
       </DialogContent>
