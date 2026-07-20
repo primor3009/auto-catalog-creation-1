@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
@@ -15,6 +15,15 @@ const Contacts = () => {
   const [form, setForm] = useState({ name: '', phone: '', comment: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handlePrefill = (e: Event) => {
+      const comment = (e as CustomEvent<string>).detail;
+      setForm((f) => ({ ...f, comment }));
+    };
+    window.addEventListener('prefill-order-comment', handlePrefill);
+    return () => window.removeEventListener('prefill-order-comment', handlePrefill);
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -123,6 +123,11 @@ const CarGalleryModal = ({ car, open, onClose }: Props) => {
           <button
             onClick={() => {
               onClose();
+              window.dispatchEvent(
+                new CustomEvent('prefill-order-comment', {
+                  detail: `Хочу купить: ${car.brand} ${car.model} (${car.year}), ${formatPrice(car.price)}`,
+                })
+              );
               setTimeout(() => {
                 document.querySelector('#contacts')?.scrollIntoView({ behavior: 'smooth' });
               }, 150);
