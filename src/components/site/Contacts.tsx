@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 const info = [
   { icon: 'MapPin', label: 'Адрес', value: 'Владивосток, Светланская 68' },
   { icon: 'Phone', label: 'Телефон', value: '+7 (914) 688-71-13' },
-  { icon: 'Mail', label: 'Почта', value: 'primormebel@gmail.com' },
+  { icon: 'Mail', label: 'Почта', value: 'mashinatut@1gb.ru' },
   { icon: 'Clock', label: 'Часы работы', value: 'Ежедневно 9:00 – 21:00' },
 ];
 
