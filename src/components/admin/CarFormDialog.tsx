@@ -13,7 +13,7 @@ interface Props {
 }
 
 const SMALL_FILE_LIMIT = 2 * 1024 * 1024;
-const CHUNK_SIZE = 1_500_000;
+const CHUNK_SIZE = 900_000;
 
 const fileToBase64 = (blob: Blob): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -37,12 +37,28 @@ const uploadFileChunked = async (file: File): Promise<string> => {
   for (let i = 0; i < totalChunks; i++) {
     const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
     const data = await fileToBase64(chunk);
-    const chunkRes = await fetch(UPLOAD_FILE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ action: 'chunk', uploadId, index: i, data }),
-    });
-    if (!chunkRes.ok) throw new Error('Ошибка загрузки части файла');
+
+    let lastError = '';
+    let ok = false;
+    for (let attempt = 0; attempt < 3 && !ok; attempt++) {
+      try {
+        const chunkRes = await fetch(UPLOAD_FILE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ action: 'chunk', uploadId, index: i, data }),
+        });
+        if (chunkRes.ok) {
+          ok = true;
+        } else {
+          const errData = await chunkRes.json().catch(() => ({}));
+          lastError = errData.error || `Часть ${i + 1} из ${totalChunks} не загрузилась`;
+        }
+      } catch {
+        lastError = `Не удалось загрузить часть ${i + 1} из ${totalChunks} — проверьте интернет-соединение`;
+      }
+      if (!ok && attempt < 2) await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+    }
+    if (!ok) throw new Error(lastError || 'Ошибка загрузки части файла');
   }
 
   const completeRes = await fetch(UPLOAD_FILE_URL, {

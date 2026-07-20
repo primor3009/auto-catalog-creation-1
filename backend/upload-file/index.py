@@ -67,41 +67,61 @@ def handler(event: dict, context) -> dict:
         }
 
     if action == 'chunk':
-        upload_id = body['uploadId']
-        index = int(body['index'])
-        chunk_data = body.get('data', '')
-        if ',' in chunk_data:
-            chunk_data = chunk_data.split(',', 1)[1]
-        raw = base64.b64decode(chunk_data)
-        part_key = f'tmp/{upload_id}/{index:06d}'
-        s3.put_object(Bucket='files', Key=part_key, Body=raw)
-        return {
-            'statusCode': 200,
-            'headers': {**headers_cors, 'Content-Type': 'application/json'},
-            'body': json.dumps({'ok': True}),
-        }
+        try:
+            upload_id = body['uploadId']
+            index = int(body['index'])
+            chunk_data = body.get('data', '')
+            if ',' in chunk_data:
+                chunk_data = chunk_data.split(',', 1)[1]
+            if not chunk_data:
+                return {
+                    'statusCode': 400,
+                    'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                    'body': json.dumps({'error': 'Пустая часть файла'}),
+                }
+            raw = base64.b64decode(chunk_data)
+            part_key = f'tmp/{upload_id}/{index:06d}'
+            s3.put_object(Bucket='files', Key=part_key, Body=raw)
+            return {
+                'statusCode': 200,
+                'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                'body': json.dumps({'ok': True}),
+            }
+        except Exception as e:
+            return {
+                'statusCode': 502,
+                'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': f'Ошибка загрузки части файла: {e}'}),
+            }
 
     if action == 'complete':
-        upload_id = body['uploadId']
-        ext = body.get('ext', 'bin')
-        content_type = body.get('contentType', 'application/octet-stream')
-        total_chunks = int(body['totalChunks'])
+        try:
+            upload_id = body['uploadId']
+            ext = body.get('ext', 'bin')
+            content_type = body.get('contentType', 'application/octet-stream')
+            total_chunks = int(body['totalChunks'])
 
-        assembled = bytearray()
-        for i in range(total_chunks):
-            part_key = f'tmp/{upload_id}/{i:06d}'
-            obj = s3.get_object(Bucket='files', Key=part_key)
-            assembled.extend(obj['Body'].read())
-            s3.delete_object(Bucket='files', Key=part_key)
+            assembled = bytearray()
+            for i in range(total_chunks):
+                part_key = f'tmp/{upload_id}/{i:06d}'
+                obj = s3.get_object(Bucket='files', Key=part_key)
+                assembled.extend(obj['Body'].read())
+                s3.delete_object(Bucket='files', Key=part_key)
 
-        key = f'cars/{uuid.uuid4().hex}.{ext}'
-        s3.put_object(Bucket='files', Key=key, Body=bytes(assembled), ContentType=content_type)
-        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
-        return {
-            'statusCode': 200,
-            'headers': {**headers_cors, 'Content-Type': 'application/json'},
-            'body': json.dumps({'url': cdn_url}),
-        }
+            key = f'cars/{uuid.uuid4().hex}.{ext}'
+            s3.put_object(Bucket='files', Key=key, Body=bytes(assembled), ContentType=content_type)
+            cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+            return {
+                'statusCode': 200,
+                'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                'body': json.dumps({'url': cdn_url}),
+            }
+        except Exception as e:
+            return {
+                'statusCode': 502,
+                'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': f'Не удалось собрать файл: {e}'}),
+            }
 
     file_name = body.get('fileName', 'file')
     content_type = body.get('contentType', 'application/octet-stream')
