@@ -14,6 +14,7 @@ export interface Car {
   video: string;
   tag?: string;
   comment?: string;
+  isFeatured?: boolean;
 }
 
 export const bodyTypes = ['Все типы', 'Седан', 'Купе', 'Кроссовер', 'Внедорожник'];

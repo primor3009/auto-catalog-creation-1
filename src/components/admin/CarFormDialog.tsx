@@ -70,6 +70,7 @@ const emptyForm = {
   video: '',
   tag: '',
   comment: '',
+  isFeatured: false,
 };
 
 const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
@@ -96,6 +97,7 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
         video: car.video || '',
         tag: car.tag || '',
         comment: car.comment || '',
+        isFeatured: car.isFeatured || false,
       });
     } else {
       setForm(emptyForm);
@@ -318,6 +320,19 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
               className="w-full px-3 py-2.5 rounded-lg bg-secondary/50 border border-border focus:border-primary outline-none text-sm resize-none"
             />
           </div>
+
+          <label className="flex items-center gap-3 p-4 rounded-lg border border-border cursor-pointer hover:border-primary/50 transition-colors">
+            <input
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })}
+              className="w-5 h-5 rounded accent-primary"
+            />
+            <div>
+              <div className="text-sm font-600">Показывать на главной странице</div>
+              <div className="text-xs text-muted-foreground">Эта машина появится в плавающей заставке. Заменит текущую, если она уже выбрана для другого авто.</div>
+            </div>
+          </label>
 
           <button
             type="submit"

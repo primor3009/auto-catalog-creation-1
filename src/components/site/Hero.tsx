@@ -14,6 +14,8 @@ const Hero = () => {
 
   if (cars.length === 0) return <section id="home" className="min-h-screen pt-20" />;
 
+  const featured = cars.find((c) => c.isFeatured) || cars[0];
+
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden grid-bg pt-20">
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-[140px]" />
@@ -73,16 +75,16 @@ const Hero = () => {
 
         <div className="relative animate-fade-up" style={{ animationDelay: '0.25s' }}>
           <div className="relative rounded-3xl overflow-hidden border border-border animate-float-slow">
-            <img src={cars[0].cover} alt={cars[0].model} className="w-full aspect-[4/3] object-cover" />
+            <img src={featured.cover} alt={featured.model} className="w-full aspect-[4/3] object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
             <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
               <div>
-                <div className="text-xs uppercase tracking-widest text-primary font-600">{cars[0].brand}</div>
-                <div className="font-display text-2xl font-700">{cars[0].model}</div>
+                <div className="text-xs uppercase tracking-widest text-primary font-600">{featured.brand}</div>
+                <div className="font-display text-2xl font-700">{featured.model}</div>
               </div>
               <div className="px-4 py-2 rounded-lg bg-background/70 backdrop-blur border border-border">
                 <div className="text-xs text-muted-foreground">0–100 км/ч</div>
-                <div className="font-display font-700 text-primary">{cars[0].acceleration} с</div>
+                <div className="font-display font-700 text-primary">{featured.acceleration} с</div>
               </div>
             </div>
           </div>

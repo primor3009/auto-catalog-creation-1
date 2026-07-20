@@ -117,6 +117,11 @@ const AdminPanel = () => {
                       {car.tag}
                     </span>
                   )}
+                  {car.isFeatured && (
+                    <span className="absolute top-3 right-3 px-3 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-700 uppercase flex items-center gap-1">
+                      <Icon name="Star" size={12} /> На главной
+                    </span>
+                  )}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                     <button
                       onClick={() => { setEditing(car); setFormOpen(true); }}
