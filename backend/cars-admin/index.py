@@ -72,58 +72,67 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 401, 'headers': headers_cors, 'body': json.dumps({'error': 'Требуется авторизация'})}
 
     if method == 'POST':
-        body = json.loads(event.get('body') or '{}')
-        gallery_json = json.dumps(body.get('gallery') or [])
-        tag_val = "'%s'" % esc(body['tag']) if body.get('tag') else 'NULL'
-        video_val = "'%s'" % esc(body['video']) if body.get('video') else 'NULL'
-        comment_val = "'%s'" % esc(body['comment']) if body.get('comment') else 'NULL'
-        is_featured = bool(body.get('isFeatured'))
-        if is_featured:
-            cur.execute("UPDATE cars SET is_featured = FALSE WHERE is_featured = TRUE")
-        cur.execute(
-            f"INSERT INTO cars (brand, model, year, price, body_type, fuel, power, acceleration, drive, cover, gallery, video, tag, comment, is_featured) "
-            f"VALUES ('{esc(body['brand'])}', '{esc(body['model'])}', {int(body['year'])}, {int(body['price'])}, "
-            f"'{esc(body['bodyType'])}', '{esc(body['fuel'])}', {int(body['power'])}, {float(body['acceleration'])}, "
-            f"'{esc(body['drive'])}', '{esc(body['cover'])}', '{esc(gallery_json)}'::jsonb, {video_val}, {tag_val}, {comment_val}, {is_featured}) "
-            f"RETURNING {cols}"
-        )
-        row = cur.fetchone()
-        return {
-            'statusCode': 201,
-            'headers': {**headers_cors, 'Content-Type': 'application/json'},
-            'body': json.dumps(row_to_car(row)),
-        }
+        try:
+            body = json.loads(event.get('body') or '{}')
+            gallery_json = json.dumps(body.get('gallery') or [])
+            tag_val = "'%s'" % esc(body['tag']) if body.get('tag') else 'NULL'
+            video_val = "'%s'" % esc(body['video']) if body.get('video') else 'NULL'
+            comment_val = "'%s'" % esc(body['comment']) if body.get('comment') else 'NULL'
+            is_featured = bool(body.get('isFeatured'))
+            if is_featured:
+                cur.execute("UPDATE cars SET is_featured = FALSE WHERE is_featured = TRUE")
+            cur.execute(
+                f"INSERT INTO cars (brand, model, year, price, body_type, fuel, power, acceleration, drive, cover, gallery, video, tag, comment, is_featured) "
+                f"VALUES ('{esc(body['brand'])}', '{esc(body['model'])}', {int(body['year'])}, {int(body['price'])}, "
+                f"'{esc(body['bodyType'])}', '{esc(body['fuel'])}', {int(body['power'])}, {float(body['acceleration'])}, "
+                f"'{esc(body['drive'])}', '{esc(body['cover'])}', '{esc(gallery_json)}'::jsonb, {video_val}, {tag_val}, {comment_val}, {is_featured}) "
+                f"RETURNING {cols}"
+            )
+            row = cur.fetchone()
+            return {
+                'statusCode': 201,
+                'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                'body': json.dumps(row_to_car(row)),
+            }
+        except Exception as e:
+            return {'statusCode': 400, 'headers': headers_cors, 'body': json.dumps({'error': f'Ошибка сохранения: {e}'})}
 
     if method == 'PUT':
-        body = json.loads(event.get('body') or '{}')
-        car_id = int(body['id'])
-        gallery_json = json.dumps(body.get('gallery') or [])
-        tag_val = "'%s'" % esc(body['tag']) if body.get('tag') else 'NULL'
-        video_val = "'%s'" % esc(body['video']) if body.get('video') else 'NULL'
-        comment_val = "'%s'" % esc(body['comment']) if body.get('comment') else 'NULL'
-        is_featured = bool(body.get('isFeatured'))
-        if is_featured:
-            cur.execute(f"UPDATE cars SET is_featured = FALSE WHERE is_featured = TRUE AND id != {car_id}")
-        cur.execute(
-            f"UPDATE cars SET brand='{esc(body['brand'])}', model='{esc(body['model'])}', year={int(body['year'])}, "
-            f"price={int(body['price'])}, body_type='{esc(body['bodyType'])}', fuel='{esc(body['fuel'])}', "
-            f"power={int(body['power'])}, acceleration={float(body['acceleration'])}, drive='{esc(body['drive'])}', "
-            f"cover='{esc(body['cover'])}', gallery='{esc(gallery_json)}'::jsonb, video={video_val}, tag={tag_val}, "
-            f"comment={comment_val}, is_featured={is_featured}, updated_at=NOW() WHERE id={car_id} RETURNING {cols}"
-        )
-        row = cur.fetchone()
-        if not row:
-            return {'statusCode': 404, 'headers': headers_cors, 'body': json.dumps({'error': 'Не найдено'})}
-        return {
-            'statusCode': 200,
-            'headers': {**headers_cors, 'Content-Type': 'application/json'},
-            'body': json.dumps(row_to_car(row)),
-        }
+        try:
+            body = json.loads(event.get('body') or '{}')
+            car_id = int(body['id'])
+            gallery_json = json.dumps(body.get('gallery') or [])
+            tag_val = "'%s'" % esc(body['tag']) if body.get('tag') else 'NULL'
+            video_val = "'%s'" % esc(body['video']) if body.get('video') else 'NULL'
+            comment_val = "'%s'" % esc(body['comment']) if body.get('comment') else 'NULL'
+            is_featured = bool(body.get('isFeatured'))
+            if is_featured:
+                cur.execute(f"UPDATE cars SET is_featured = FALSE WHERE is_featured = TRUE AND id != {car_id}")
+            cur.execute(
+                f"UPDATE cars SET brand='{esc(body['brand'])}', model='{esc(body['model'])}', year={int(body['year'])}, "
+                f"price={int(body['price'])}, body_type='{esc(body['bodyType'])}', fuel='{esc(body['fuel'])}', "
+                f"power={int(body['power'])}, acceleration={float(body['acceleration'])}, drive='{esc(body['drive'])}', "
+                f"cover='{esc(body['cover'])}', gallery='{esc(gallery_json)}'::jsonb, video={video_val}, tag={tag_val}, "
+                f"comment={comment_val}, is_featured={is_featured}, updated_at=NOW() WHERE id={car_id} RETURNING {cols}"
+            )
+            row = cur.fetchone()
+            if not row:
+                return {'statusCode': 404, 'headers': headers_cors, 'body': json.dumps({'error': 'Не найдено'})}
+            return {
+                'statusCode': 200,
+                'headers': {**headers_cors, 'Content-Type': 'application/json'},
+                'body': json.dumps(row_to_car(row)),
+            }
+        except Exception as e:
+            return {'statusCode': 400, 'headers': headers_cors, 'body': json.dumps({'error': f'Ошибка сохранения: {e}'})}
 
     if method == 'DELETE':
-        params = event.get('queryStringParameters') or {}
-        car_id = int(params.get('id', 0))
-        cur.execute(f"DELETE FROM cars WHERE id={car_id}")
-        return {'statusCode': 200, 'headers': headers_cors, 'body': json.dumps({'success': True})}
+        try:
+            params = event.get('queryStringParameters') or {}
+            car_id = int(params.get('id', 0))
+            cur.execute(f"DELETE FROM cars WHERE id={car_id}")
+            return {'statusCode': 200, 'headers': headers_cors, 'body': json.dumps({'success': True})}
+        except Exception as e:
+            return {'statusCode': 400, 'headers': headers_cors, 'body': json.dumps({'error': f'Ошибка удаления: {e}'})}
 
     return {'statusCode': 405, 'headers': headers_cors, 'body': json.dumps({'error': 'Method not allowed'})}

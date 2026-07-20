@@ -146,7 +146,13 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
     if (files.length === 0) return;
     setUploading(true);
     try {
-      const urls = await Promise.all(files.map(uploadFile));
+      const urls: string[] = [];
+      const BATCH_SIZE = 3;
+      for (let i = 0; i < files.length; i += BATCH_SIZE) {
+        const batch = files.slice(i, i + BATCH_SIZE);
+        const batchUrls = await Promise.all(batch.map(uploadFile));
+        urls.push(...batchUrls);
+      }
       setForm((f) => ({
         ...f,
         gallery: [...f.gallery, ...urls],
@@ -200,12 +206,16 @@ const CarFormDialog = ({ car, open, onClose, onSaved }: Props) => {
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(car ? { ...form, id: car.id } : form),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Не удалось сохранить');
+      }
       toast.success(car ? 'Автомобиль обновлён' : 'Автомобиль добавлен');
       onSaved();
       onClose();
-    } catch {
-      toast.error('Не удалось сохранить');
+    } catch (err) {
+      console.error('Ошибка сохранения автомобиля:', err);
+      toast.error(err instanceof Error && err.message ? err.message : 'Не удалось сохранить');
     } finally {
       setSaving(false);
     }
