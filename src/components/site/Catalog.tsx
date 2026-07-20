@@ -98,7 +98,7 @@ const Catalog = () => {
             </div>
             <input
               type="range"
-              min={3000000}
+              min={0}
               max={13000000}
               step={100000}
               value={maxPrice}
